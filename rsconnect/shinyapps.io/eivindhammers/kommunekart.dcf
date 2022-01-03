@@ -1,0 +1,13 @@
+name: kommunekart
+title: kommunekart
+username:
+account: eivindhammers
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3100083
+bundleId: 5415614
+url: https://eivindhammers.shinyapps.io/kommunekart/
+when: 1640731994.01497
+lastSyncTime: 1640731994.01497
+asMultiple: FALSE
+asStatic: FALSE

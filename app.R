@@ -1,6 +1,7 @@
-library(dplyr)
+
 library(sf)
 library(shiny)
+library(dplyr)
 library(tools)
 library(readxl)
 library(readr)
@@ -39,7 +40,7 @@ ui <- fluidPage(
                 buttonLabel = "Bla igjennom..."),
       selectInput("keyvar", label = "Variabel med kommunenummer",
                   choices = NULL),
-      selectInput("kommuneår", label = "År for kommuneinndeling",
+      selectInput("kommuneaar", label = "aar for kommuneinndeling",
                   choices = c("2020"),
                   selected = NULL),
       selectInput("fillvar", label = "Variabel som skal plottes",
@@ -47,17 +48,17 @@ ui <- fluidPage(
       radioButtons("fillvar_type", label = "Kontinuerlig eller diskret variabel?",
                    choices = c("Kontinuerlig", "Diskret")),
       radioButtons("fillvar_fmt", label = "Format for plotting",
-                   choices = c("Rådata", "Naturlig inndeling ('Jenks')", "Persentiler")),
+                   choices = c("Raadata", "Naturlig inndeling ('Jenks')", "Persentiler")),
       sliderInput("fillvar_numcat", label = "Antall klasser/kategorier", 
                   min = 1, max = 20, step = 1, value = 5),
       radioButtons("show_which", label = "Kommuner som skal vises",
                    choices = c("Alle", "Kun kommuner med data")),
-      checkboxInput("fylke", label = "Vis fylkeomriss (kun 2020-inndeling per nå)", value = TRUE),
-      colourInput("border", label = "Farge på kommunegrenser", value = "gray", allowTransparent = TRUE),
+      checkboxInput("fylke", label = "Vis fylkeomriss (kun 2020-inndeling per naa)", value = TRUE),
+      colourInput("border", label = "Farge paa kommunegrenser", value = "gray", allowTransparent = TRUE),
       selectInput("palette", 
                   label = a("Fargepalett", href = "https://colorbrewer2.org/", target = "_blank"),
                   choices = NULL),
-      checkboxInput("palette_rev", label = "Omvendt rekkefølge på farger", value = FALSE),
+      checkboxInput("palette_rev", label = "Omvendt rekkefoelge paa farger", value = FALSE),
       colourInput("na_color", label = "Farge for manglende data", value = "#cccccc"),
       textInput("fillvar_lab", label = "Overskrift for legenden (valgfritt)"),
       actionButton("plot", label = "Generer kart"),
@@ -97,8 +98,8 @@ server <- function(input, output, session) {
     updateSelectInput(session, "fillvar", "Variabel som skal plottes", choices = vars)
   })
   
-  kart <- eventReactive(input$kommuneår, {
-    filnavn <- paste0("kommuner_", input$kommuneår, "_simplest_2.rds")
+  kart <- eventReactive(input$kommuneaar, {
+    filnavn <- paste0("kommuner_", input$kommuneaar, "_simplest_2.rds")
     readRDS(filnavn) %>%
       st_set_crs(25833) %>%
       mutate(kommunenummer = as.numeric(kommunenummer))
@@ -140,7 +141,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    if (input$fillvar_fmt == "Rådata" | input$fillvar_type == "Diskret") {
+    if (input$fillvar_fmt == "Raadata" | input$fillvar_type == "Diskret") {
       disable("fillvar_numcat")
     } else {
       enable("fillvar_numcat")
@@ -178,7 +179,7 @@ server <- function(input, output, session) {
       pal_fun <- colorFactor(input$palette, kart_kommunedata()$fillvar,
                              reverse = input$palette_rev)
     }
-    if (input$fillvar_type == "Kontinuerlig" & input$fillvar_fmt == "Rådata") {
+    if (input$fillvar_type == "Kontinuerlig" & input$fillvar_fmt == "Raadata") {
       pal_fun <- colorNumeric(input$palette, kart_kommunedata()$fillvar, 
                               reverse = input$palette_rev)   
     }
@@ -195,7 +196,7 @@ server <- function(input, output, session) {
       )
     
     lmap <- if (input$fylke == TRUE) {
-      filnavn <- paste0("fylker_", input$kommuneår, "_simplest_2.rds")
+      filnavn <- paste0("fylker_", input$kommuneaar, "_simplest_2.rds")
       fylker <- readRDS(filnavn) %>%
         st_set_crs(25833) %>%
         st_transform(4326)
@@ -213,11 +214,11 @@ server <- function(input, output, session) {
     
     palette_dir <- ifelse(input$palette_rev == TRUE, -1, 1)
     
-    bordercol <- case_when(input$border == "Grå" ~ "gray",
+    bordercol <- case_when(input$border == "Graa" ~ "gray",
                            input$border == "Svart" ~ "black",
                            input$border == "Hvit" ~ "white")
     
-    if (input$fillvar_type == "Kontinuerlig" & input$fillvar_fmt == "Rådata") {
+    if (input$fillvar_type == "Kontinuerlig" & input$fillvar_fmt == "Raadata") {
       kart_kommunedata() %>%
         st_transform(25833) %>%
         ggplot() +
@@ -252,7 +253,7 @@ server <- function(input, output, session) {
   
   output$map_static <- renderPlot(width = 700, height = 700, res = 96, {
     if (input$fylke == TRUE) {
-      filnavn <- paste0("fylker_", input$kommuneår, "_simplest_2.rds")
+      filnavn <- paste0("fylker_", input$kommuneaar, "_simplest_2.rds")
       fylker <- readRDS(filnavn) %>%
         st_set_crs(25833)
       
@@ -274,7 +275,7 @@ server <- function(input, output, session) {
               legend.justification = c("left", "top"))  
       
       p <- if (input$fylke == TRUE) {
-        filnavn <- paste0("fylker_", input$kommuneår, "_simplest_2.rds")
+        filnavn <- paste0("fylker_", input$kommuneaar, "_simplest_2.rds")
         fylker <- readRDS(filnavn) %>%
           st_set_crs(25833)
         
